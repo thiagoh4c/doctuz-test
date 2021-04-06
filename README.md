@@ -25,7 +25,7 @@ react-native start
 Use react-native run-android to run the project
 
 ```
-react-native start
+react-native run-android
 ```
  
 Follow the instructions from the terminal to preview the app on your phone or using an emulator.
