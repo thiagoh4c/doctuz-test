@@ -46,11 +46,8 @@ export const getSessionId = () => {
 
 client.interceptors.request.use(async config => {
     const state = store.getState();
-    if (state && state.auth && state.auth.data && state.auth.data.session_id)
-        config.headers.common['session-id'] = state.auth.data.session_id;
-
-    if (state && state.user && state.user.data && state.user.data.session_id)
-        config.headers.common['session-id'] = state.user.data.session_id;
+    if (state && state.user.data?.uid)
+        config.headers.common['session-id'] = state.user?.data?.uid;
 
     return config;
 });

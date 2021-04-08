@@ -20,6 +20,9 @@ export const colors = {
         light: '#f9ce87',
         checked: '#e8b25a',
     },
+    green:{
+        default: '#37a219'
+    }
 };
 
 export const app_spacing = {

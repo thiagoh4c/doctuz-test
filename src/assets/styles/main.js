@@ -12,6 +12,14 @@ export default StyleSheet.create({
         color: 'white',
         marginBottom: 15,
     },
+    pageTitleBlack: {
+        fontFamily: fonts.light,
+        fontSize: 28,
+        textAlign: 'center',
+        color: 'black',
+        marginBottom: 15,
+        marginTop: 30,
+    },
     colorWhite: {
         color: colors.white,
     },

@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
 
 import { View, Text, TouchableOpacity } from 'react-native';
+import FontAwesome from 'react-native-vector-icons/FontAwesome5';
 
 import { connect } from 'react-redux';
 import main from '@styles/main';
 import Page from '@components/Page';
 import Button from '@components/Button';
 
-import { getTaskList } from '@store/tasklist';
+import { getTaskList, setCompletedTask } from '@store/tasklist';
 import { setUser } from '@store/user';
+import { toggleAlert } from '@store/alert';
 
 import styles from './styles';
 import Loading from '@components/Loading';
@@ -29,27 +31,16 @@ class TaskList extends Component {
 
     constructor(props) {
         super(props);
-
         this._unsubscribe = this.props.navigation.addListener('focus', () => {
-            this.props.getTaskList(1).then(({ payload }) => {
-                    let result = payload.data;
-
-                    this.setState({
-                        items: [],
-                    });
-
-                    if (result.status) {
-                        this.setState({
-                            items: [...this.state.items, ...result.data.tasklist],
-                            loading: false,
-                        });
-                    }
-                });
+            this._getTaskList();
         });
 
         this.content = {
             ...DefaultContent,
         };
+    }
+
+    _getTaskList() {
         this.props.getTaskList(1).then(({ payload }) => {
             let result = payload.data;
 
@@ -63,7 +54,13 @@ class TaskList extends Component {
                     loading: false,
                 });
             }
+        }).catch((err) => {
+            this.props.toggleAlert(true, {
+                title: 'Ops!',
+                message: 'Não foi possível recuperar suas tarefas. Tente mais tarde.',
+            });
         });
+   
     }
 
     componentWillUnmount() {
@@ -76,6 +73,13 @@ class TaskList extends Component {
 
     addTask() {
         NavigationService.navigate('TaskListDetails');
+    }
+
+    setCompleted(item){
+        this.props.setCompletedTask(item.id).then(action => {
+            let result = action.payload.data;
+            this._getTaskList();
+        });
     }
 
     render() {
@@ -91,24 +95,34 @@ class TaskList extends Component {
                 <View style={styles.wrapper}>
                     {items.length
                         ? items.map(item => (
-                              <TouchableOpacity
-                                  style={styles.tasks}
-                                  key={item.id}
-                                  onPress={() => this.seeDetails(item)}
-                                  activeOpacity={0.9}>
-                                  <View style={styles.containerTask}>
-                                    <Text style={styles.tasksTitle}>
-                                        {item.title}
-                                    </Text>
-                                    <Text
-                                        style={styles.tasksText}>
-                                        {item.text}
-                                    </Text>
-                                  </View>
-                                  <Text>Ver</Text>
-                              </TouchableOpacity>
+                              <View style={styles.tasks} key={item.id}>
+                                    <TouchableOpacity 
+                                        style={styles.containerTask}
+                                        onPress={() => this.seeDetails(item)}
+                                        activeOpacity={0.9}>
+                                            <Text style={styles.tasksTitle}>
+                                                {item.title}
+                                            </Text>
+                                            <Text
+                                                style={styles.tasksText}>
+                                                {item.text}
+                                            </Text>
+                                    </TouchableOpacity>
+                                    {item.is_complete == 1
+                                        ? 
+                                                <FontAwesome name="check-circle" size={30} color={colors.green.default} />
+                                        : 
+                                        <TouchableOpacity
+                                            onPress={() => this.setCompleted(item)}
+                                            activeOpacity={1}>
+                                        <FontAwesome name="check-circle" size={30} color={colors.gray.superLight} />
+                                        </TouchableOpacity>
+                                    }
+                              </View>
                           ))
-                        : null}
+                        : 
+                        <Text style={styles.pageSubTitle}>Você ainda não tem tarefas.</Text>
+                        }
                     {loading || this.props.loading ? (
                         <Loading
                             color={
@@ -121,7 +135,6 @@ class TaskList extends Component {
                 <Button
                     text=" + Adicionar Nova Tarefa"
                     style={styles.btnAdd}
-                    theme="transparent"
                     onPress={() => this.addTask()}
                 />
             </Page>
@@ -136,6 +149,8 @@ const mapStateToProps = ({ tasklist, user }) => ({
 
 const mapDispatchToProps = {
     getTaskList,
+    setCompletedTask,
+    toggleAlert,
 };
 
 export default connect(

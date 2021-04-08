@@ -36,6 +36,11 @@ const DefaultContent = {
 };
 
 class Register extends Component {
+
+    state = {
+        loading: false
+    }
+
     constructor(props) {
         super(props);
 
@@ -45,14 +50,8 @@ class Register extends Component {
         };
     }
 
-    forget() {
-        NavigationService.navigate('ForgetPassword');
-    }
-
     async register(values) {
-        console.log(values);
-        const currentState = await store.getState();
-        console.log('currentState', currentState);
+        this.setState({loading: true});
         Firebase.auth()
             .createUserWithEmailAndPassword(values.email, values.password)
             .then(async (user) => { 
@@ -64,13 +63,30 @@ class Register extends Component {
                 // }); 
                 store.dispatch(this.props.setUser(user.data));
                 NavigationService.navigate('TaskList');
+                this.setState({loading: false});
             })
             .catch(error => {
-                console.log(error);
+                let errorMessage;
+                console.log('error',error.code);
+                switch(error.code){
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'E-mail já cadastrado';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Senha incorreta';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = 'Muitas tentativas. Acesso bloqueado.';
+                        break;
+                    default: 
+                        errorMessage = 'Houve algum erro ao tentar se cadastrar';
+                    break;
+                }
                 this.props.toggleAlert(true, {
-                    message: 'Algum erro ocorreu no seu cadastro',
+                    title: 'Ops!',
+                    message: errorMessage,
                 });
-                return false;
+                this.setState({loading: false});
             })
     }
 
@@ -99,7 +115,7 @@ class Register extends Component {
                                 <Input
                                     form={Form}
                                     name="email"
-                                    placeholder="Usuário"
+                                    placeholder="E-mail"
                                 />
                                 <Input
                                     form={Form}
@@ -109,15 +125,12 @@ class Register extends Component {
                                 />
                                 <Button
                                     text="CADASTRAR"
+                                    loading={this.state.loading}
                                     onPress={Form.handleSubmit}
                                 />
                             </View>
                         )}
                     </Formik>
-                    <TouchableOpacity
-                        activeOpacity={0.8}>
-                        <Text style={styles.forget}>Esqueci minha senha</Text>
-                    </TouchableOpacity>
                 </View>
                 <View style={styles.segment}>
                     <Button

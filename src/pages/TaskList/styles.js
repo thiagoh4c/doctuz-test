@@ -41,6 +41,14 @@ export default StyleSheet.create({
     btnAdd: {
         position: 'absolute',
         bottom:20,
-        width:'90%'
+        width:'90%',
+        backgroundColor: 'green'
+    },
+    pageSubTitle:{
+        fontFamily: fonts.light,
+        fontSize: 18,
+        textAlign: 'center',
+        color: 'white',
+        marginBottom: 15,
     }
 });

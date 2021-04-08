@@ -13,13 +13,6 @@ export default StyleSheet.create({
         color: colors.gray.dark,
         textAlign: 'center'
     },
-    forget: {
-        marginTop: 26,
-        fontFamily: fonts.regular,
-        color: colors.gray.dark,
-        fontSize: 15,
-        textAlign: 'center'
-    },
     registerButton: {
         marginTop: 40,
     },

@@ -188,6 +188,12 @@ const themes = {
         width: '100%',
         marginLeft: 6,
     },
+    datePickerIcon: {
+        position: 'absolute', 
+        right:0, 
+        top:30, 
+        right:30
+    }
 };
 
 export default themes;

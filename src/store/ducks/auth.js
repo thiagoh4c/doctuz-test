@@ -23,7 +23,6 @@ const initialState = {
 };
 
 export default function reducer(state = initialState, action) {
-    console.log(action.type);
     switch (action.type) {
         case LOGIN:
             return {
@@ -73,11 +72,19 @@ export default function reducer(state = initialState, action) {
 
 // Action Creators
 export async function login(data) {
-    const response = await Firebase.auth().signInWithEmailAndPassword(data.email, data.password);
-    return {
-        type: LOGIN,
-        payload: response.user,
-    };
+
+    try{
+        const response = await Firebase.auth().signInWithEmailAndPassword(data.email, data.password);
+        return {
+            type: LOGIN,
+            payload: response.user,
+        };
+    }catch(e){
+        return {
+            type: LOGIN,
+            payload: {},
+        };
+    }
 }
 
 export function refresh() {

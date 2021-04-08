@@ -65,7 +65,7 @@ export default StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         width: wp('30%'),
-        backgroundColor: colors.red,
+        backgroundColor: colors.gray.dark,
     },
 
     buttonCancelText: {

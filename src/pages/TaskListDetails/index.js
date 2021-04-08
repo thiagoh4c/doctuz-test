@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { Formik } from 'formik';
 import { Text, View } from 'react-native';
 import Input from '@components/Form/Input';
+import CustomDateTimePicker from '@components/Form/DatePicker';
 import Button from '@components/Button';
 import FontAwesome from 'react-native-vector-icons/FontAwesome5';
 
@@ -13,15 +14,18 @@ import * as Yup from 'yup';
 
 import styles from './styles';
 
-import { getTaskListDetails, update, register } from '@store/tasklist';
+import { getTaskListDetails, updateTask, registerTask, removeTask } from '@store/tasklist';
 import Loading from '@components/Loading';
 import { toggleAlert } from '@store/alert';
+
+import NavigationService from '@services/NavigationService';
 
 const FormValues = {
     initialValues: {
         id: '',
         title: '',
         text: '',
+        date: new Date(1598051730000),
     },
     schema: Yup.object().shape({
         title: Yup.string()
@@ -31,45 +35,41 @@ const FormValues = {
 
 class TaskListDetails extends Component {
     state = {
-       
-    };
+        editing: false,
+        register: false
+    }
 
     constructor(props) {
         super(props);
 
         let { params } = props.route;
 
-        FormValues.initialValues = {
-            id: this.props.details.id,
-            title: this.props.details.title,
-            text: this.props.details.text,
-        };
-
-        console.log('FormValues',FormValues.initialValues );
-        console.log('props',this.props.details);
-
         let add = false;
-        if(params?.task)
+        if(params?.task){
             this.props.getTaskListDetails(params.task);
-        else
-            add = true            
 
-        this.state = {
-            editing: add,
-            register: add
-        }
+            FormValues.initialValues = {
+                id: 0,
+                title: this.props.details.title,
+                text: this.props.details.text,
+                date: new Date(),
+            };
+        }else
+            add = true;           
+
+            this.state = {
+                editing: add,
+                register: add
+            };
     }
 
     submit(values) {
-        console.log('submit save');
-
         if(this.state.editing){
             this.setState({ 
                 editing: false
             });
 
-
-            this.props[this.props.register ? 'register' : 'update'](values).then(async action => {
+            this.props[this.state.register ? 'registerTask' : 'updateTask'](values).then(async action => {
                 let result = action.payload.data;
     
                 if (!result.status) {
@@ -81,6 +81,7 @@ class TaskListDetails extends Component {
                         title: 'Sucesso!',
                         message: this.state.register ? 'Sua tarefa foi criada com sucesso.' : 'Sua tarefa foi atualizada.',
                     });
+                    NavigationService.back();
                 }
             });
         }
@@ -94,18 +95,37 @@ class TaskListDetails extends Component {
         }
     }
     remove(){
+        
         this.props.toggleAlert(true, {
-            title: 'Atenção!',
-            message: 'Deseja remover esta tarefa?',
+            message: 'Deseja excluir esta tarefa?',
+            cancelText:"Cancelar",
+            confirmText:"Excluir",
             showCancelButton: true,
-        })
+            onConfirmPressed: () => {
+                this.props.removeTask(FormValues.initialValues.id).then(async action => {
+                    let result = action.payload.data;
+            
+                    if (!result.status) {
+                        this.props.toggleAlert(true, {
+                            message: result.data,
+                        });
+                    } else {
+                        this.props.toggleAlert(true, {
+                            title: 'Sucesso!',
+                            message: 'Tarefa excluida com sucesso.',
+                        });
+                        NavigationService.back();
+                    }
+                });
+            }
+        }); 
     }
 
     render() {
         const { details } = this.props;
-        FormValues.initialValues = {...details};
-        console.log('FormValues2',FormValues.initialValues );
-        console.log('props2',this.state);
+        if(!this.state.register){
+            FormValues.initialValues = {...details, date: new Date()};
+        }
         return (
             <Page
                 theme="orange"
@@ -141,6 +161,13 @@ class TaskListDetails extends Component {
                                         editable={this.state.editing}
                                         style={styles.textArea}
                                     />
+                                    <CustomDateTimePicker
+                                        form={Form}
+                                        isDatePicker={true}
+                                        name="date"
+                                        placeholder="Data de Entrega da Task"
+                                        editable={this.state.editing}
+                                    />
                                     <View style={styles.containerButtons}>
                                         {(!this.state.register && !this.state.editing) && 
                                             <Button
@@ -152,7 +179,7 @@ class TaskListDetails extends Component {
                                         }
                                         {(this.state.editing || this.state.register) &&
                                             <Button
-                                                text="Salvar"
+                                                text={this.state.register ? "Criar Task" : "Salvar"}
                                                 loading={this.props.loading}
                                                 style={styles.buttonSave}
                                                 onPress={Form.handleSubmit}
@@ -185,8 +212,9 @@ const mapStateToProps = ({ tasklist }) => ({
 const mapDispatchToProps = {
     toggleAlert,
     getTaskListDetails,
-    update, 
-    register
+    updateTask, 
+    registerTask,
+    removeTask
 };
 
 export default connect(

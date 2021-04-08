@@ -10,6 +10,7 @@ import {
 
 import LoadingScreen from './pages/LoadingScreen';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
 import Register from './pages/Register';
 import TaskList from './pages/TaskList';
 import TaskListDetails from './pages/TaskListDetails';
@@ -36,6 +37,12 @@ _Routes['Login'] = params =>
         screen: 'Login',
         params,
     });
+
+_Routes['ForgotPassword'] = params =>
+        CommonActions.navigate('NotAuthedStack', {
+            screen: 'ForgotPassword',
+            params,
+        });
 
 _Routes['Register'] = params =>
     CommonActions.navigate('NotAuthedStack', {
@@ -65,6 +72,11 @@ const NotAuthedStack = () => (
         <Stack.Screen
             name="Login"
             component={Login}
+            options={ScreenDefaultConfig}
+        />
+        <Stack.Screen
+            name="ForgotPassword"
+            component={ForgotPassword}
             options={ScreenDefaultConfig}
         />
         <Stack.Screen

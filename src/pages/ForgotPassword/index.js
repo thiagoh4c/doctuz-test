@@ -27,15 +27,14 @@ const FormValues = {
             .email('E-mail inválido')
             .min(6, 'Inválido')
             .required('Obrigatório'),
-        password: Yup.string().required('Obrigatório'),
     }),
 };
 
 const DefaultContent = {
-    title: 'ToDo App',
+    title: 'Recuperar senha',
 };
 
-class Login extends Component {
+class ForgotPassword extends Component {
     
     state = {
         loading: false
@@ -55,15 +54,13 @@ class Login extends Component {
         NavigationService.navigate('Register');
     }
 
-    forgot() {
-        NavigationService.navigate('ForgotPassword');
-    }
-
     login(values) {
         this.setState({loading: true});
-        Firebase.auth().signInWithEmailAndPassword(values.email, values.password).then((response) => {
-            this.props.setUser(response.user);
-            NavigationService.navigate('TaskList');
+        Firebase.auth().sendPasswordResetEmail(values.email).then((response) => {
+            this.props.toggleAlert(true, {
+                title: 'Está tudo bem!',
+                message: 'Uma nova senha foi enviada para seu e-mail',
+            });
             this.setState({loading: false});
         }).catch(error => {
             let errorMessage;
@@ -76,7 +73,7 @@ class Login extends Component {
                     errorMessage = 'Senha incorreta';
                     break;
                 case 'auth/too-many-requests':
-                    errorMessage = 'Muitas tentativas. Acesso bloqueado.';
+                    errorMessage = 'Muitas tentativas. Acesso bloqueado';
                     break;
                 default: 
                     errorMessage = 'Houve algum erro ao efetuar login';
@@ -88,12 +85,12 @@ class Login extends Component {
             });
             this.setState({loading: false});
         });
-        
+    
     }
 
     render() {
         return (
-            <Page style={styles.wrapper} noExtraBottomPadding={true} theme="white" headerProps={ { white:false, showBackButton: false}}>
+            <Page style={styles.wrapper} headerProps={ { white:false, showBackButton: true}}>
                 <View style={styles.segment}>
                     <Text style={main.pageTitleBlack}>{this.content.title}</Text>
                     <Formik
@@ -109,32 +106,14 @@ class Login extends Component {
                                     name="email"
                                     placeholder="Usuário"
                                 />
-                                <Input
-                                    form={Form}
-                                    name="password"
-                                    placeholder="Senha"
-                                    type="password"
-                                />
                                 <Button
-                                    text="ENTRAR"
+                                    text="Recuperar senha"
                                     onPress={Form.handleSubmit}
                                     loading={this.state.loading}
                                 />
                             </View>
                         )}
                     </Formik>
-                    <TouchableOpacity
-                        onPress={() => this.forgot()}
-                        activeOpacity={0.8}>
-                        <Text style={styles.forget}>Esqueci minha senha</Text>
-                    </TouchableOpacity>
-                </View>
-                <View style={styles.segment}>
-                    <Button
-                        style={styles.registerButton}
-                        text="QUERO ME CADASTRAR"
-                        onPress={() => this.register()}
-                    />
                 </View>
             </Page>
         );
@@ -154,4 +133,4 @@ const mapDispatchToProps = {
 export default connect(
     mapStateToProps,
     mapDispatchToProps,
-)(Login);
+)(ForgotPassword);
