@@ -3,7 +3,7 @@ import { colors, app_spacing } from "@styles/_variables";
 
 export default StyleSheet.create({
     wrapper: {
-        height: 80,
+        height: Platform.OS == 'ios' ? 130 : 80,
         backgroundColor: 'transparent',
         width: '100%',
         justifyContent: 'space-between',

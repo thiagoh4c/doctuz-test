@@ -13,7 +13,7 @@ const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
 };
 
 const BaseView = React.forwardRef((props, ref) => (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
         <ScrollView
             ref={props.scrollRef}
             contentContainerStyle={styles.scrollView}
@@ -32,7 +32,7 @@ const BaseView = React.forwardRef((props, ref) => (
             }}>
             {props.children}
         </ScrollView>
-    </SafeAreaView>
+    </View>
 ));
 
 export default BaseView;
