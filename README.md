@@ -29,3 +29,14 @@ react-native run-android
 ```
  
 Follow the instructions from the terminal to preview the app on your phone or using an emulator.
+
+### 5. iOS
+
+```
+yarn
+```
+
+```
+cd ios && pod install
+```
+Open file iOS/TodoApp.xcworkspace on Xcode
